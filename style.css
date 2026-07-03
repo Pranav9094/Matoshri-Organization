@@ -488,6 +488,37 @@ html {
   margin-top: 3px;
 }
 
+
+/* ═══ VIP VISITS ═══ */
+.vip-visit-box {
+  background: linear-gradient(135deg, rgba(0,54,103,0.04) 0%, rgba(212,175,55,0.06) 100%);
+  border: 1px solid rgba(212,175,55,0.3);
+  border-left: 4px solid #D4AF37;
+  border-radius: 14px;
+  padding: 28px 32px;
+}
+
+.vip-tag {
+  background: #FFFFFF;
+  border: 1px solid #c2c6d2;
+  border-radius: 10px;
+  padding: 12px 14px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: #003667;
+  line-height: 1.5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.vip-tag span {
+  font-size: 11px;
+  font-weight: 400;
+  color: #7A6E68;
+}
 /* ═══ GALLERY MODAL ═══ */
 
 .gallery-modal {
