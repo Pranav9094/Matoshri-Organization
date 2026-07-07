@@ -7,7 +7,20 @@
    file below the last section's code.
    ═══════════════════════════════════════════════ */
 
+/* ===== GOOGLE DRIVE CONFIG ===== */
 
+const API_KEY = "AIzaSyB7BF_9U3YN8h7fNi7lbttcEJiD76Na9o8";
+
+const FOLDERS = {
+  school: "",
+  eyecare: "",
+  library: "",
+  environment: "",
+  deaddiction: "",
+  women: "",
+  achievements: "",
+  media: ""
+};
 /* ── HAMBURGER MENU ── */
 const hamburger = document.getElementById('hamburger');
 const mobileMenu = document.getElementById('mobile-menu');
@@ -78,51 +91,70 @@ reveals.forEach(el => revealObserver.observe(el));
 
    /* ═══ SECTION 3 — ACHIEVEMENTS GALLERY ═══ */
 
-const achievementsPhotos = [
-  { src: 'Achievements/maharashtra-gaurav-puraskar-2025-certificate.jpg', caption: 'महाराष्ट्र गौरव पुरस्कार २०२५' },
-  { src: 'Achievements/maharashtra-gaurav-puraskar-2024.jpg',             caption: 'महाराष्ट्र गौरव पुरस्कार २०२४' },
-  { src: 'Achievements/netramitra-certificate-tulsi-hospital.jpg',        caption: 'नेत्र-मित्र पुरस्कार — तुलसी आय हॉस्पिटल' },
-  { src: 'Achievements/sanman-plate-2021.jpg',                            caption: 'जिल्हा युवा पुरस्कार २०२१' },
-  { src: 'Achievements/police-ceremony-certificate.jpg',                  caption: 'Award Ceremony' },
-  { src: 'Achievements/plantation-award.jpg',                             caption: 'वृक्ष लागवड पुरस्कार' },
-  { src: 'Achievements/iso-certificate.jpg',                              caption: 'ISO Certificate' },
-];
+const ACHIEVEMENTS_FOLDER_ID = "1uvEyzKaWOKUvNaXTsHu-XArb2nB9UC1k";
 
 let achievementsLightboxIndex = 0;
 let achievementsLightboxPhotos = [];
 
-function openAchievementsGallery() {
-  const grid = document.getElementById('achievements-gallery-grid');
-  grid.innerHTML = '';
-  achievementsLightboxPhotos = [];
+async function openAchievementsGallery() {
 
-  achievementsPhotos.forEach((photo, i) => {
-    const img = new Image();
-    img.onload = () => {
-      achievementsLightboxPhotos.push({ ...photo });
-      const item = document.createElement('div');
-      item.className = 'gallery-grid-item';
-      item.innerHTML = `<img src="${photo.src}" alt="${photo.caption}" loading="lazy"/>`;
-      const idx = achievementsLightboxPhotos.length - 1;
-      item.addEventListener('click', () => openAchievementsLightbox(idx));
-      grid.appendChild(item);
-    };
-    img.onerror = () => {
-      if (i === achievementsPhotos.length - 1 && grid.children.length === 0) {
-        grid.innerHTML = '<div class="gallery-empty">📷 Photos येतील लवकरच</div>';
-      }
-    };
-    img.src = photo.src;
-  });
+    const grid = document.getElementById('achievements-gallery-grid');
 
-  setTimeout(() => {
-    if (grid.children.length === 0) {
-      grid.innerHTML = '<div class="gallery-empty">📷 Photos येतील लवकरच — Coming soon</div>';
+    grid.innerHTML = '<div class="gallery-empty">Loading...</div>';
+
+    schoolLightboxPhotos = [];
+
+    const url = `https://www.googleapis.com/drive/v3/files?q='${SCHOOL_FOLDER_ID}'+in+parents and mimeType contains 'image/'&fields=files(id,name)&key=${API_KEY}`;
+
+    try {
+
+        const response = await fetch(url);
+
+        const data = await response.json();
+
+        grid.innerHTML = "";
+
+        data.files.forEach((file, index) => {
+
+            const imageUrl = `https://drive.google.com/thumbnail?id=${file.id}&sz=w1200`;
+
+            schoolLightboxPhotos.push({
+                src: imageUrl,
+                caption: file.name
+            });
+
+            const item = document.createElement("div");
+
+            item.className = "gallery-grid-item";
+
+            item.innerHTML = `
+                <img src="${imageUrl}" alt="${file.name}" loading="lazy">
+            `;
+
+            item.onclick = () => openLightbox("school", index);
+
+            grid.appendChild(item);
+
+        });
+
+        if (data.files.length === 0) {
+
+            grid.innerHTML = '<div class="gallery-empty">📷 No Photos Found</div>';
+
+        }
+
+    } catch (e) {
+
+        grid.innerHTML = '<div class="gallery-empty">❌ Failed to Load Gallery</div>';
+
+        console.error(e);
+
     }
-  }, 2000);
 
-  document.getElementById('achievements-gallery-modal').classList.remove('hidden');
-  document.body.style.overflow = 'hidden';
+    document.getElementById('achievements-gallery-modal').classList.remove('hidden');
+
+    document.body.style.overflow = 'hidden';
+
 }
 
 function closeAchievementsGallery() {
@@ -160,57 +192,70 @@ document.addEventListener('keydown', (e) => {
 
    /* ═══ SECTION 4 — SCHOOL GALLERY & LIGHTBOX ═══ */
 
-const schoolPhotos = [
-  { src: 'School/school-building-01.jpg',          caption: 'School Building' },
-  { src: 'School/school-building-02.jpg',          caption: 'School Building' },
-  { src: 'School/school-classroom-01.jpg',         caption: 'Classroom' },
-  { src: 'School/school-classroom-02.jpg',         caption: 'Classroom' },
-  { src: 'School/school-students-activity-01.jpg', caption: 'Student Activity' },
-  { src: 'School/school-students-activity-02.jpg', caption: 'Student Activity' },
-  { src: 'School/school-principal.jpg',            caption: 'Principal' },
-  { src: 'School/school-iso-certificate.jpg',      caption: 'ISO Certificate' },
-];
-
+const SCHOOL_FOLDER_ID = "1UJBh-RIiGYlIjyxIkZpXlWLg78gV7IsX";
 let schoolLightboxIndex = 0;
 let schoolLightboxPhotos = [];
 
-function openSchoolGallery() {
-  const grid = document.getElementById('school-gallery-grid');
-  grid.innerHTML = '';
-  schoolLightboxPhotos = [];
+async function openSchoolGallery() {
 
-  let loaded = 0;
+    const grid = document.getElementById('school-gallery-grid');
 
-  schoolPhotos.forEach((photo, i) => {
-    const img = new Image();
-    img.onload = () => {
-      schoolLightboxPhotos.push({ src: photo.src, caption: photo.caption, index: i });
-      const item = document.createElement('div');
-      item.className = 'gallery-grid-item';
-      item.innerHTML = `<img src="${photo.src}" alt="${photo.caption}" loading="lazy"/>`;
-      item.addEventListener('click', () => openLightbox('school', schoolLightboxPhotos.length - 1));
-      grid.appendChild(item);
-      loaded++;
-    };
-    img.onerror = () => {
-      loaded++;
-      if (loaded === schoolPhotos.length && grid.children.length === 0) {
-        grid.innerHTML = '<div class="gallery-empty">📷 Photos coming soon...</div>';
-      }
-    };
-    img.src = photo.src;
-  });
+    grid.innerHTML = '<div class="gallery-empty">Loading...</div>';
 
-  setTimeout(() => {
-    if (grid.children.length === 0) {
-      grid.innerHTML = '<div class="gallery-empty">📷 Photos येतील लवकरच — Photos coming soon...</div>';
+    schoolLightboxPhotos = [];
+
+    const url = `https://www.googleapis.com/drive/v3/files?q='${SCHOOL_FOLDER_ID}'+in+parents and mimeType contains 'image/'&fields=files(id,name)&key=${API_KEY}`;
+
+    try {
+
+        const response = await fetch(url);
+
+        const data = await response.json();
+
+        grid.innerHTML = "";
+
+        data.files.forEach((file, index) => {
+
+            const imageUrl = `https://drive.google.com/thumbnail?id=${file.id}&sz=w1200`;
+
+            schoolLightboxPhotos.push({
+                src: imageUrl,
+                caption: file.name
+            });
+
+            const item = document.createElement("div");
+
+            item.className = "gallery-grid-item";
+
+            item.innerHTML = `
+                <img src="${imageUrl}" alt="${file.name}" loading="lazy">
+            `;
+
+            item.onclick = () => openLightbox("school", index);
+
+            grid.appendChild(item);
+
+        });
+
+        if (data.files.length === 0) {
+
+            grid.innerHTML = '<div class="gallery-empty">📷 No Photos Found</div>';
+
+        }
+
+    } catch (e) {
+
+        grid.innerHTML = '<div class="gallery-empty">❌ Failed to Load Gallery</div>';
+
+        console.error(e);
+
     }
-  }, 2000);
 
-  document.getElementById('school-gallery-modal').classList.remove('hidden');
-  document.body.style.overflow = 'hidden';
+    document.getElementById('school-gallery-modal').classList.remove('hidden');
+
+    document.body.style.overflow = 'hidden';
+
 }
-
 function closeSchoolGallery() {
   document.getElementById('school-gallery-modal').classList.add('hidden');
   document.body.style.overflow = '';
@@ -255,25 +300,72 @@ document.addEventListener('keydown', (e) => {
 
 
 /* ═══ SECTION 5 — EYECARE GALLERY ═══ */
-const eyecarePhotos = [
-  { src: 'Eyecare/eyecamp-01.jpg',     caption: 'नेत्र तपासणी शिबिर' },
-  { src: 'Eyecare/eyecamp-02.jpg',     caption: 'नेत्र तपासणी शिबिर' },
-  { src: 'Eyecare/eyecamp-03.jpg',     caption: 'नेत्र तपासणी शिबिर' },
-  { src: 'Eyecare/bloodcamp-01.jpg',   caption: 'रक्तदान शिबिर' },
-  { src: 'Eyecare/bloodcamp-02.jpg',   caption: 'रक्तदान शिबिर' },
-  { src: 'Eyecare/healthcamp-01.jpg',  caption: 'आरोग्य शिबिर' },
-  { src: 'Eyecare/healthcamp-02.jpg',  caption: 'आरोग्य शिबिर' },
-  { src: 'Eyecare/netramitra-award.jpg', caption: 'नेत्र-मित्र पुरस्कार' },
-];
+const EYECARE_FOLDER_ID = "1eHOo7-tWp9ZbhYyCmR6nMPqYNS_jDhC6";
 
 let eyecareLightboxIndex = 0;
 let eyecareLightboxPhotos = [];
 
-function openEyecareGallery() {
-  buildGallery('eyecare-gallery-grid', eyecarePhotos, eyecareLightboxPhotos, openEyecareLightbox);
-  document.getElementById('eyecare-gallery-modal').classList.remove('hidden');
-  document.body.style.overflow = 'hidden';
+async function openEyecareGallery() {
+
+    const grid = document.getElementById('eyecare-gallery-grid');
+
+    grid.innerHTML = '<div class="gallery-empty">Loading...</div>';
+
+    schoolLightboxPhotos = [];
+
+    const url = `https://www.googleapis.com/drive/v3/files?q='${SCHOOL_FOLDER_ID}'+in+parents and mimeType contains 'image/'&fields=files(id,name)&key=${API_KEY}`;
+
+    try {
+
+        const response = await fetch(url);
+
+        const data = await response.json();
+
+        grid.innerHTML = "";
+
+        data.files.forEach((file, index) => {
+
+            const imageUrl = `https://drive.google.com/thumbnail?id=${file.id}&sz=w1200`;
+
+            schoolLightboxPhotos.push({
+                src: imageUrl,
+                caption: file.name
+            });
+
+            const item = document.createElement("div");
+
+            item.className = "gallery-grid-item";
+
+            item.innerHTML = `
+                <img src="${imageUrl}" alt="${file.name}" loading="lazy">
+            `;
+
+            item.onclick = () => openLightbox("school", index);
+
+            grid.appendChild(item);
+
+        });
+
+        if (data.files.length === 0) {
+
+            grid.innerHTML = '<div class="gallery-empty">📷 No Photos Found</div>';
+
+        }
+
+    } catch (e) {
+
+        grid.innerHTML = '<div class="gallery-empty">❌ Failed to Load Gallery</div>';
+
+        console.error(e);
+
+    }
+
+    document.getElementById('eyecare-gallery-modal').classList.remove('hidden');
+
+    document.body.style.overflow = 'hidden';
+
 }
+
 function closeEyecareGallery() {
   document.getElementById('eyecare-gallery-modal').classList.add('hidden');
   document.body.style.overflow = '';
@@ -300,21 +392,70 @@ document.addEventListener('keydown', (e) => {
 });
 
 /* ═══ SECTION 6 — LIBRARY GALLERY ═══ */
-const libraryPhotos = [
-  { src: 'Library/library-interior-01.jpg', caption: 'वाचनालय — आतील दृश्य' },
-  { src: 'Library/library-interior-02.jpg', caption: 'वाचनालय — आतील दृश्य' },
-  { src: 'Library/library-books-01.jpg',    caption: 'पुस्तक संग्रह' },
-  { src: 'Library/library-readers-01.jpg',  caption: 'वाचक' },
-  { src: 'Library/library-readers-02.jpg',  caption: 'वाचक' },
-];
+const LIBRARY_FOLDER_ID = "1C3_mmxSPqXz4b0w7bgDLNPfMUZcf0GB1";
 
 let libraryLightboxIndex = 0;
 let libraryLightboxPhotos = [];
 
-function openLibraryGallery() {
-  buildGallery('library-gallery-grid', libraryPhotos, libraryLightboxPhotos, openLibraryLightbox);
-  document.getElementById('library-gallery-modal').classList.remove('hidden');
-  document.body.style.overflow = 'hidden';
+async function openLibraryGallery() {
+
+    const grid = document.getElementById('library-gallery-grid');
+
+    grid.innerHTML = '<div class="gallery-empty">Loading...</div>';
+
+    schoolLightboxPhotos = [];
+
+    const url = `https://www.googleapis.com/drive/v3/files?q='${SCHOOL_FOLDER_ID}'+in+parents and mimeType contains 'image/'&fields=files(id,name)&key=${API_KEY}`;
+
+    try {
+
+        const response = await fetch(url);
+
+        const data = await response.json();
+
+        grid.innerHTML = "";
+
+        data.files.forEach((file, index) => {
+
+            const imageUrl = `https://drive.google.com/thumbnail?id=${file.id}&sz=w1200`;
+
+            schoolLightboxPhotos.push({
+                src: imageUrl,
+                caption: file.name
+            });
+
+            const item = document.createElement("div");
+
+            item.className = "gallery-grid-item";
+
+            item.innerHTML = `
+                <img src="${imageUrl}" alt="${file.name}" loading="lazy">
+            `;
+
+            item.onclick = () => openLightbox("school", index);
+
+            grid.appendChild(item);
+
+        });
+
+        if (data.files.length === 0) {
+
+            grid.innerHTML = '<div class="gallery-empty">📷 No Photos Found</div>';
+
+        }
+
+    } catch (e) {
+
+        grid.innerHTML = '<div class="gallery-empty">❌ Failed to Load Gallery</div>';
+
+        console.error(e);
+
+    }
+
+    document.getElementById('library-gallery-modal').classList.remove('hidden');
+
+    document.body.style.overflow = 'hidden';
+
 }
 function closeLibraryGallery() {
   document.getElementById('library-gallery-modal').classList.add('hidden');
@@ -342,23 +483,72 @@ document.addEventListener('keydown', (e) => {
 });
 
 /* ═══ SECTION 7 — ENVIRONMENT GALLERY ═══ */
-const environmentPhotos = [
-  { src: 'Environment/plantation-01.jpg',    caption: 'वृक्षारोपण मोहीम' },
-  { src: 'Environment/plantation-02.jpg',    caption: 'वृक्षारोपण मोहीम' },
-  { src: 'Environment/plantation-03.jpg',    caption: 'वृक्षारोपण मोहीम' },
-  { src: 'Environment/vatsavitri-01.jpg',    caption: 'वटसावित्री वृक्षारोपण' },
-  { src: 'Environment/school-tree-01.jpg',   caption: 'एक झाड – मुलाच्या नावे' },
-  { src: 'Environment/plantation-award.jpg', caption: 'वृक्षमित्र पुरस्कार' },
-];
+const ENVIRONMENT_FOLDER_ID="1_Jj-WQvJnJXFgKsiBzsjkCaQb3lCVveM"
 
 let environmentLightboxIndex = 0;
 let environmentLightboxPhotos = [];
 
-function openEnvironmentGallery() {
-  buildGallery('environment-gallery-grid', environmentPhotos, environmentLightboxPhotos, openEnvironmentLightbox);
-  document.getElementById('environment-gallery-modal').classList.remove('hidden');
-  document.body.style.overflow = 'hidden';
+async function openEnvironmentGallery() {
+
+    const grid = document.getElementById('environment-gallery-grid');
+
+    grid.innerHTML = '<div class="gallery-empty">Loading...</div>';
+
+    schoolLightboxPhotos = [];
+
+    const url = `https://www.googleapis.com/drive/v3/files?q='${SCHOOL_FOLDER_ID}'+in+parents and mimeType contains 'image/'&fields=files(id,name)&key=${API_KEY}`;
+
+    try {
+
+        const response = await fetch(url);
+
+        const data = await response.json();
+
+        grid.innerHTML = "";
+
+        data.files.forEach((file, index) => {
+
+            const imageUrl = `https://drive.google.com/thumbnail?id=${file.id}&sz=w1200`;
+
+            schoolLightboxPhotos.push({
+                src: imageUrl,
+                caption: file.name
+            });
+
+            const item = document.createElement("div");
+
+            item.className = "gallery-grid-item";
+
+            item.innerHTML = `
+                <img src="${imageUrl}" alt="${file.name}" loading="lazy">
+            `;
+
+            item.onclick = () => openLightbox("school", index);
+
+            grid.appendChild(item);
+
+        });
+
+        if (data.files.length === 0) {
+
+            grid.innerHTML = '<div class="gallery-empty">📷 No Photos Found</div>';
+
+        }
+
+    } catch (e) {
+
+        grid.innerHTML = '<div class="gallery-empty">❌ Failed to Load Gallery</div>';
+
+        console.error(e);
+
+    }
+
+    document.getElementById('environment-gallery-modal').classList.remove('hidden');
+
+    document.body.style.overflow = 'hidden';
+
 }
+
 function closeEnvironmentGallery() {
   document.getElementById('environment-gallery-modal').classList.add('hidden');
   document.body.style.overflow = '';
@@ -385,24 +575,70 @@ document.addEventListener('keydown', (e) => {
 });
 
 /* ═══ SECTION 8 — DEADDICTION GALLERY ═══ */
-const deaddictionPhotos = [
-  { src: 'Deaddiction/deaddiction-program-01.jpg',  caption: 'व्यसनमुक्ती जनजागृती कार्यक्रम' },
-  { src: 'Deaddiction/deaddiction-program-02.jpg',  caption: 'व्यसनमुक्ती जनजागृती कार्यक्रम' },
-  { src: 'Deaddiction/deaddiction-rally-01.jpg',    caption: 'व्यसनमुक्ती रॅली' },
-  { src: 'Deaddiction/deaddiction-poster-01.jpg',   caption: 'पोस्टर प्रदर्शन' },
-  { src: 'Deaddiction/deaddiction-poster-02.jpg',   caption: 'पोस्टर प्रदर्शन' },
-  { src: 'Deaddiction/deaddiction-camp-01.jpg',     caption: 'जनजागृती शिबिर' },
-  { src: 'Deaddiction/deaddiction-police-01.jpg',   caption: 'पोलीस सहकार्य' },
-  { src: 'Deaddiction/deaddiction-rec-letter.jpg',  caption: 'शासकीय शिफारस पत्र' },
-];
+const DEADDITION_FOLDER_ID = "1v69oJqnd_QFLNf8jrv_h9WJOG8JTefIf";
 
 let deaddictionLightboxIndex = 0;
 let deaddictionLightboxPhotos = [];
 
-function openDeaddictionGallery() {
-  buildGallery('deaddiction-gallery-grid', deaddictionPhotos, deaddictionLightboxPhotos, openDeaddictionLightbox);
-  document.getElementById('deaddiction-gallery-modal').classList.remove('hidden');
-  document.body.style.overflow = 'hidden';
+async function openDeaddictionGallery() {
+
+    const grid = document.getElementById('deaddiction-gallery-grid');
+
+    grid.innerHTML = '<div class="gallery-empty">Loading...</div>';
+
+    schoolLightboxPhotos = [];
+
+    const url = `https://www.googleapis.com/drive/v3/files?q='${SCHOOL_FOLDER_ID}'+in+parents and mimeType contains 'image/'&fields=files(id,name)&key=${API_KEY}`;
+
+    try {
+
+        const response = await fetch(url);
+
+        const data = await response.json();
+
+        grid.innerHTML = "";
+
+        data.files.forEach((file, index) => {
+
+            const imageUrl = `https://drive.google.com/thumbnail?id=${file.id}&sz=w1200`;
+
+            schoolLightboxPhotos.push({
+                src: imageUrl,
+                caption: file.name
+            });
+
+            const item = document.createElement("div");
+
+            item.className = "gallery-grid-item";
+
+            item.innerHTML = `
+                <img src="${imageUrl}" alt="${file.name}" loading="lazy">
+            `;
+
+            item.onclick = () => openLightbox("school", index);
+
+            grid.appendChild(item);
+
+        });
+
+        if (data.files.length === 0) {
+
+            grid.innerHTML = '<div class="gallery-empty">📷 No Photos Found</div>';
+
+        }
+
+    } catch (e) {
+
+        grid.innerHTML = '<div class="gallery-empty">❌ Failed to Load Gallery</div>';
+
+        console.error(e);
+
+    }
+
+    document.getElementById('deaddiction-gallery-modal').classList.remove('hidden');
+
+    document.body.style.overflow = 'hidden';
+
 }
 function closeDeaddictionGallery() {
   document.getElementById('deaddiction-gallery-modal').classList.add('hidden');
@@ -432,22 +668,69 @@ document.addEventListener('keydown', (e) => {
 
 
 /* ═══ SECTION 9 — WOMEN GALLERY ═══ */
-const womenPhotos = [
-  { src: 'Women Empowerment/women-workshop-01.jpg', caption: 'महिला कार्यशाळा' },
-  { src: 'Women Empowerment/women-workshop-02.jpg', caption: 'महिला कार्यशाळा' },
-  { src: 'Women Empowerment/women-program-01.jpg',  caption: 'महिला कार्यक्रम' },
-  { src: 'Women Empowerment/women-program-02.jpg',  caption: 'महिला कार्यक्रम' },
-  { src: 'Women Empowerment/women-group-01.jpg',    caption: 'महिला गट फोटो' },
-  { src: 'Women Empowerment/vatsavitri-01.jpg',     caption: 'वटसावित्री उपक्रम' },
-];
-
+const WOMEN_FOLDER_ID = "1cKE6KOTCMXqe3Ko9ReLo3LHC0pd_uScJ";
 let womenLightboxIndex = 0;
 let womenLightboxPhotos = [];
 
-function openWomenGallery() {
-  buildGallery('women-gallery-grid', womenPhotos, womenLightboxPhotos, openWomenLightbox);
-  document.getElementById('women-gallery-modal').classList.remove('hidden');
-  document.body.style.overflow = 'hidden';
+async function openWomenGallery() {
+
+    const grid = document.getElementById('women-gallery-grid');
+
+    grid.innerHTML = '<div class="gallery-empty">Loading...</div>';
+
+    schoolLightboxPhotos = [];
+
+    const url = `https://www.googleapis.com/drive/v3/files?q='${SCHOOL_FOLDER_ID}'+in+parents and mimeType contains 'image/'&fields=files(id,name)&key=${API_KEY}`;
+
+    try {
+
+        const response = await fetch(url);
+
+        const data = await response.json();
+
+        grid.innerHTML = "";
+
+        data.files.forEach((file, index) => {
+
+            const imageUrl = `https://drive.google.com/thumbnail?id=${file.id}&sz=w1200`;
+
+            schoolLightboxPhotos.push({
+                src: imageUrl,
+                caption: file.name
+            });
+
+            const item = document.createElement("div");
+
+            item.className = "gallery-grid-item";
+
+            item.innerHTML = `
+                <img src="${imageUrl}" alt="${file.name}" loading="lazy">
+            `;
+
+            item.onclick = () => openLightbox("school", index);
+
+            grid.appendChild(item);
+
+        });
+
+        if (data.files.length === 0) {
+
+            grid.innerHTML = '<div class="gallery-empty">📷 No Photos Found</div>';
+
+        }
+
+    } catch (e) {
+
+        grid.innerHTML = '<div class="gallery-empty">❌ Failed to Load Gallery</div>';
+
+        console.error(e);
+
+    }
+
+    document.getElementById('women-gallery-modal').classList.remove('hidden');
+
+    document.body.style.overflow = 'hidden';
+
 }
 function closeWomenGallery() {
   document.getElementById('women-gallery-modal').classList.add('hidden');
@@ -475,28 +758,69 @@ document.addEventListener('keydown', (e) => {
 });
 
 /* ═══ SECTION 10 — MEDIA GALLERY ═══ */
-const mediaPhotos = [
-  { src: 'Media Press/newspaper-01.jpg',       caption: 'वृत्तपत्र Coverage' },
-  { src: 'Media Press/newspaper-02.jpg',       caption: 'वृत्तपत्र Coverage' },
-  { src: 'Media Press/newspaper-03.jpg',       caption: 'वृत्तपत्र Coverage' },
-  { src: 'Media Press/newspaper-04.jpg',       caption: 'वृत्तपत्र Coverage' },
-  { src: 'Media Press/newspaper-05.jpg',       caption: 'वृत्तपत्र Coverage' },
-  { src: 'Media Press/newspaper-06.jpg',       caption: 'वृत्तपत्र Coverage' },
-  { src: 'Media Press/newspaper-07.jpg',       caption: 'वृत्तपत्र Coverage' },
-  { src: 'Media Press/newspaper-08.jpg',       caption: 'वृत्तपत्र Coverage' },
-  { src: 'Media Press/news-interview-abp.jpg', caption: 'TV News Interview' },
-  { src: 'Media Press/youth-festival-stage.jpg', caption: '27वा राष्ट्रीय युवक महोत्सव २०२४' },
-  { src: 'Media Press/youth-festival-01.jpg',  caption: 'राष्ट्रीय युवक महोत्सव' },
-  { src: 'Media Press/youth-festival-02.jpg',  caption: 'राष्ट्रीय युवक महोत्सव' },
-];
-
+const MEDIA_FOLDER_ID = "1321XyZ5zvXiZI7egXLI-Hmc-0ZZcAr6a";
 let mediaLightboxIndex = 0;
 let mediaLightboxPhotos = [];
 
-function openMediaGallery() {
-  buildGallery('media-gallery-grid', mediaPhotos, mediaLightboxPhotos, openMediaLightbox);
-  document.getElementById('media-gallery-modal').classList.remove('hidden');
-  document.body.style.overflow = 'hidden';
+async function openMediaGallery() {
+
+    const grid = document.getElementById('media-gallery-grid');
+
+    grid.innerHTML = '<div class="gallery-empty">Loading...</div>';
+
+    schoolLightboxPhotos = [];
+
+    const url = `https://www.googleapis.com/drive/v3/files?q='${SCHOOL_FOLDER_ID}'+in+parents and mimeType contains 'image/'&fields=files(id,name)&key=${API_KEY}`;
+
+    try {
+
+        const response = await fetch(url);
+
+        const data = await response.json();
+
+        grid.innerHTML = "";
+
+        data.files.forEach((file, index) => {
+
+            const imageUrl = `https://drive.google.com/thumbnail?id=${file.id}&sz=w1200`;
+
+            schoolLightboxPhotos.push({
+                src: imageUrl,
+                caption: file.name
+            });
+
+            const item = document.createElement("div");
+
+            item.className = "gallery-grid-item";
+
+            item.innerHTML = `
+                <img src="${imageUrl}" alt="${file.name}" loading="lazy">
+            `;
+
+            item.onclick = () => openLightbox("school", index);
+
+            grid.appendChild(item);
+
+        });
+
+        if (data.files.length === 0) {
+
+            grid.innerHTML = '<div class="gallery-empty">📷 No Photos Found</div>';
+
+        }
+
+    } catch (e) {
+
+        grid.innerHTML = '<div class="gallery-empty">❌ Failed to Load Gallery</div>';
+
+        console.error(e);
+
+    }
+
+    document.getElementById('media-gallery-modal').classList.remove('hidden');
+
+    document.body.style.overflow = 'hidden';
+
 }
 function closeMediaGallery() {
   document.getElementById('media-gallery-modal').classList.add('hidden');
