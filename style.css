@@ -292,23 +292,21 @@ html {
   margin-bottom: 12px;
 }
 
-.achievement-img-thumb {
-  width: 100%;
-  height: 120px;
-  border-radius: 8px;
-  overflow: hidden;
-  border: 1px solid #c2c6d2;
+.achievement-img-thumb{
+    width:100%;
+    border-radius:8px;
+    overflow:hidden;
+    border:1px solid #c2c6d2;
 }
 
-.achievement-img-thumb img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.4s ease;
+.achievement-img-thumb img{
+    width:100%;
+    height:auto;
+    display:block;
 }
 
 .achievement-card:hover .achievement-img-thumb img {
-  transform: scale(1.05);
+  transform: scale(1.02);
 }
 /* ═══ SECTION 4 — SCHOOL ═══ */
 
