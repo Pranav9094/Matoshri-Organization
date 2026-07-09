@@ -146,14 +146,14 @@ html {
 }
 
 .member-avatar-wrap {
-  width: 100%;
-  height: 180px;
-  background: #f7f9fc;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  position: relative;
+    width:100%;
+    height:260px;
+    background:#ffffff;
+    overflow:hidden;
+    display:flex;
+    justify-content:center;
+    align-items:flex-end;
+    position:relative;
 }
 
 .member-avatar-placeholder {
@@ -167,11 +167,17 @@ html {
   border: 3px solid #c2c6d2;
 }
 
-.member-avatar-wrap img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: top;
+.member-avatar-wrap img{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    object-fit:contain;
+    object-position:center bottom;
+    z-index:2;
+}
+.member-avatar-placeholder{
+    display:none;
 }
 
 .member-info {
