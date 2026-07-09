@@ -230,6 +230,7 @@ html {
   display: flex;
   gap: 18px;
   transition: all 0.3s ease;
+
 }
 
 .achievement-card:hover {
@@ -294,15 +295,18 @@ html {
 
 .achievement-img-thumb{
     width:100%;
-    border-radius:8px;
+    height:140px;      /* Pehle 120 tha, isko 140 ya 150 rakh sakte ho */
     overflow:hidden;
+    border-radius:8px;
     border:1px solid #c2c6d2;
+    background:#fff;
 }
 
 .achievement-img-thumb img{
     width:100%;
-    height:auto;
-    display:block;
+    height:100%;
+    object-fit:cover;
+    object-position:center;
 }
 
 .achievement-card:hover .achievement-img-thumb img {
