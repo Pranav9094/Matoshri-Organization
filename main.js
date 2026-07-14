@@ -47,21 +47,26 @@
   /* ─────────────────────────────────────────────
      SECTION 1 — GALLERY CONFIGURATION
      ─────────────────────────────────────────────
-     To add a new gallery:
-       1. Add an entry here in GALLERIES.
-       2. Add a button in HTML: onclick="openGallery('key')"
-       3. Add modal + lightbox HTML with IDs matching the key.
+     Mapped to actual Google Drive folders:
+       achievements → Award and Achievements Gallery
+       school       → School Gallery
+       eyecare      → Health Sector Gallery
+       library      → (no folder yet — will show "No Photos Found")
+       environment  → Environment Gallery
+       deaddiction  → De-Addiction Gallery
+       women        → Women Empowerment Gallery
+       media        → Awareness Gallery
      ───────────────────────────────────────────── */
 
   var GALLERIES = Object.freeze({
-    achievements: { folderId: '1uvEyzKaWOKUvNaXTsHu-XArb2nB9UC1k', photos: [], index: 0 },
+    achievements: { folderId: '1xe2kq4U-TODZ9t89S_eYMXaAHE_aIAb6', photos: [], index: 0 },
     school:       { folderId: '1UJBh-RIiGYlIjyxIkZpXlWLg78gV7IsX', photos: [], index: 0 },
-    eyecare:      { folderId: '1eHOo7-tWp9ZbhYyCmR6nMPqYNS_jDhC6', photos: [], index: 0 },
-    library:      { folderId: '1C3_mmxSPqXz4b0w7bgDLNPfMUZcf0GB1', photos: [], index: 0 },
+    eyecare:      { folderId: '1FptjBy_I91xIFF8197EA6CoBcCEencLN', photos: [], index: 0 },
+    library:      { folderId: '', photos: [], index: 0 },
     environment:  { folderId: '1_Jj-WQvJnJXFgKsiBzsjkCaQb3lCVveM', photos: [], index: 0 },
     deaddiction:  { folderId: '1v69oJqnd_QFLNf8jrv_h9WJOG8JTefIf', photos: [], index: 0 },
     women:        { folderId: '1cKE6KOTCMXqe3Ko9ReLo3LHC0pd_uScJ', photos: [], index: 0 },
-    media:        { folderId: '1321XyZ5zvXiZI7egXLI-Hmc-0ZZcAr6a', photos: [], index: 0 }
+    media:        { folderId: '1uvEyzKaWOKUvNaXTsHu-XArb2nB9UC1k', photos: [], index: 0 }
   });
 
   /* Allowed gallery keys — prevents prototype pollution via key injection */
@@ -174,6 +179,13 @@
     gallery.photos = [];
     gallery.index  = 0;
     grid.innerHTML = '';
+
+    /* Handle galleries with no folder configured yet (e.g. library) */
+    if (!gallery.folderId) {
+      grid.appendChild(makeStatusEl('📷 Photos येतील लवकरच — Coming Soon'));
+      return;
+    }
+
     grid.appendChild(makeStatusEl('Loading...'));
 
     var url = 'https://www.googleapis.com/drive/v3/files'
