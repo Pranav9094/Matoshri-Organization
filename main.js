@@ -65,7 +65,7 @@
     library:      { folderId: '', photos: [], index: 0 },
     environment:  { folderId: '1_Jj-WQvJnJXFgKsiBzsjkCaQb3lCVveM', photos: [], index: 0 },
     deaddiction:  { folderId: '1v69oJqnd_QFLNf8jrv_h9WJOG8JTefIf', photos: [], index: 0 },
-    women:        { folderId: '1cKE6KOTCMXqe3Ko9ReLo3LHC0pd_uScJ', photos: [], index: 0 },
+    women:        { folderIds: ['1cKE6KOTCMXqe3Ko9ReLo3LHC0pd_uScJ', '1C3_mmxSPqXz4b0w7bgDLNPfMUZcf0GB1'], photos: [], index: 0 },
     media:        { folderId: '1uvEyzKaWOKUvNaXTsHu-XArb2nB9UC1k', photos: [], index: 0 }
   });
 
@@ -168,91 +168,107 @@
    * @param {string} key - Gallery key.
    */
   async function loadGallery(key) {
-    if (!isValidKey(key)) { log('Invalid gallery key', key); return; }
+  if (!isValidKey(key)) { log('Invalid gallery key', key); return; }
 
-    var gallery = GALLERIES[key];
-    var grid    = document.getElementById(key + '-gallery-grid');
+  var gallery = GALLERIES[key];
+  var grid    = document.getElementById(key + '-gallery-grid');
 
-    if (!grid) { log('Gallery grid not found: #' + key + '-gallery-grid'); return; }
+  if (!grid) { log('Gallery grid not found: #' + key + '-gallery-grid'); return; }
 
-    /* Reset state */
-    gallery.photos = [];
-    gallery.index  = 0;
-    grid.innerHTML = '';
+  /* Reset state */
+  gallery.photos = [];
+  gallery.index  = 0;
+  grid.innerHTML = '';
 
-    /* Handle galleries with no folder configured yet (e.g. library) */
-    if (!gallery.folderId) {
-      grid.appendChild(makeStatusEl('📷 Photos येतील लवकरच — Coming Soon'));
-      return;
-    }
+  /* Normalize to always work with an array of folder IDs */
+  var folderIds = gallery.folderIds
+    ? gallery.folderIds
+    : (gallery.folderId ? [gallery.folderId] : []);
 
-    grid.appendChild(makeStatusEl('Loading...'));
+  /* Handle galleries with no folder configured yet (e.g. library) */
+  if (folderIds.length === 0) {
+    grid.appendChild(makeStatusEl('📷 Photos येतील लवकरच — Coming Soon'));
+    return;
+  }
 
-    var url = 'https://www.googleapis.com/drive/v3/files'
-      + '?q=%27' + gallery.folderId + '%27+in+parents+and+mimeType+contains+%27image/%27'
-      + '&fields=files(id,name)&key=' + encodeURIComponent(API_KEY);
+  grid.appendChild(makeStatusEl('Loading...'));
 
-    try {
+  try {
+    /* Fetch from ALL folders in parallel */
+    var allFiles = [];
+
+    for (var f = 0; f < folderIds.length; f++) {
+      var folderId = folderIds[f];
+
+      var url = 'https://www.googleapis.com/drive/v3/files'
+        + '?q=%27' + folderId + '%27+in+parents+and+mimeType+contains+%27image/%27'
+        + '&fields=files(id,name)&key=' + encodeURIComponent(API_KEY);
+
       var response = await fetch(url);
 
       if (!response.ok) {
-        throw new Error('HTTP ' + response.status);
+        log('Folder fetch failed: ' + folderId, response.status);
+        continue; // skip this folder, try the next one
       }
 
       var data = await response.json();
 
-      if (!data.files || data.files.length === 0) {
-        grid.innerHTML = '';
-        grid.appendChild(makeStatusEl('📷 No Photos Found'));
+      if (data.files && data.files.length > 0) {
+        allFiles = allFiles.concat(data.files);
+      }
+    }
+
+    if (allFiles.length === 0) {
+      grid.innerHTML = '';
+      grid.appendChild(makeStatusEl('📷 No Photos Found'));
+      return;
+    }
+
+    grid.innerHTML = '';
+
+    allFiles.forEach(function (file, index) {
+      /* Validate that id and name are non-empty strings */
+      if (!file.id || typeof file.id !== 'string') return;
+      var safeName = (typeof file.name === 'string' && file.name) ? file.name : 'Photo ' + (index + 1);
+
+      /* Validate the Drive file ID looks like a Drive ID (alphanumeric + _ -) */
+      if (!/^[\w-]+$/.test(file.id)) {
+        log('Suspicious file ID skipped', file.id);
         return;
       }
 
-      grid.innerHTML = '';
+      var imageUrl = 'https://drive.google.com/thumbnail?id=' + file.id + '&sz=w1200';
 
-      data.files.forEach(function (file, index) {
-        /* Validate that id and name are non-empty strings */
-        if (!file.id || typeof file.id !== 'string') return;
-        var safeName = (typeof file.name === 'string' && file.name) ? file.name : 'Photo ' + (index + 1);
+      gallery.photos.push({ src: imageUrl, caption: safeName });
 
-        /* Validate the Drive file ID looks like a Drive ID (alphanumeric + _ -) */
-        if (!/^[\w-]+$/.test(file.id)) {
-          log('Suspicious file ID skipped', file.id);
-          return;
-        }
+      /* Build the grid item entirely via DOM API — zero innerHTML with API data */
+      var item = document.createElement('div');
+      item.className = 'gallery-grid-item';
 
-        var imageUrl = 'https://drive.google.com/thumbnail?id=' + file.id + '&sz=w1200';
+      var img = document.createElement('img');
+      img.src     = imageUrl;
+      img.alt     = safeName;
+      img.loading = 'lazy';
+      img.width   = 400;
+      img.height  = 300;
 
-        gallery.photos.push({ src: imageUrl, caption: safeName });
+      item.appendChild(img);
 
-        /* Build the grid item entirely via DOM API — zero innerHTML with API data */
-        var item = document.createElement('div');
-        item.className = 'gallery-grid-item';
+      (function (capturedIndex) {
+        item.addEventListener('click', function () {
+          openLightbox(key, capturedIndex);
+        });
+      }(gallery.photos.length - 1));
 
-        var img = document.createElement('img');
-        img.src     = imageUrl;     /* safe: constructed from validated file.id */
-        img.alt     = safeName;     /* safe: set as property, auto-escaped       */
-        img.loading = 'lazy';
-        img.width   = 400;
-        img.height  = 300;
+      grid.appendChild(item);
+    });
 
-        item.appendChild(img);
-
-        /* Capture index in closure correctly */
-        (function (capturedIndex) {
-          item.addEventListener('click', function () {
-            openLightbox(key, capturedIndex);
-          });
-        }(gallery.photos.length - 1));
-
-        grid.appendChild(item);
-      });
-
-    } catch (err) {
-      grid.innerHTML = '';
-      grid.appendChild(makeStatusEl('❌ Failed to Load Gallery'));
-      log('Gallery "' + key + '" failed to load', err);
-    }
+  } catch (err) {
+    grid.innerHTML = '';
+    grid.appendChild(makeStatusEl('❌ Failed to Load Gallery'));
+    log('Gallery "' + key + '" failed to load', err);
   }
+}
 
   /**
    * Opens the gallery modal, then loads photos from Drive.
