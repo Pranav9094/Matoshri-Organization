@@ -375,14 +375,24 @@
       }
     }
   });
-
-  /* ═════════════════════════════════════════════
-     CONTACT FORM
+/* ═════════════════════════════════════════════
+     CONTACT FORM — EmailJS Integration
      ═════════════════════════════════════════════ */
+
+  var EMAILJS_SERVICE_ID  = 'service_zeodimh';
+  var EMAILJS_TEMPLATE_ID = 'template_6lqdil7';
+  var EMAILJS_PUBLIC_KEY   = 'LpS1gulO8JKKyErMB';
+
+  /* Initialize EmailJS once, if the library loaded successfully */
+  if (typeof emailjs !== 'undefined') {
+    emailjs.init(EMAILJS_PUBLIC_KEY);
+  }
 
   function submitContactForm() {
     var name    = document.getElementById('cf-name').value.trim();
     var phone   = document.getElementById('cf-phone').value.trim();
+    var email   = document.getElementById('cf-email').value.trim();
+    var subject = document.getElementById('cf-subject').value.trim();
     var message = document.getElementById('cf-message').value.trim();
 
     /* Basic presence check */
@@ -403,17 +413,52 @@
       return;
     }
 
-    document.getElementById('contact-form').classList.add('hidden');
-    document.getElementById('contact-success').classList.remove('hidden');
+    if (typeof emailjs === 'undefined') {
+      log('EmailJS library not loaded');
+      alert('संदेश पाठवण्यात अडचण आली. कृपया थोड्या वेळाने पुन्हा प्रयत्न करा.');
+      return;
+    }
 
-    setTimeout(function () {
-      document.getElementById('contact-form').classList.remove('hidden');
-      document.getElementById('contact-success').classList.add('hidden');
-      ['cf-name', 'cf-phone', 'cf-email', 'cf-subject', 'cf-message'].forEach(function (id) {
-        var el = document.getElementById(id);
-        if (el) el.value = '';
+    var submitBtn = document.querySelector('.contact-submit-btn');
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.style.opacity = '0.6';
+    }
+
+    var templateParams = {
+      name:    name,
+      phone:   phone,
+      email:   email || 'दिलेला नाही',
+      subject: subject || 'सामान्य चौकशी',
+      message: message
+    };
+
+    emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams)
+      .then(function () {
+        document.getElementById('contact-form').classList.add('hidden');
+        document.getElementById('contact-success').classList.remove('hidden');
+
+        setTimeout(function () {
+          document.getElementById('contact-form').classList.remove('hidden');
+          document.getElementById('contact-success').classList.add('hidden');
+          ['cf-name', 'cf-phone', 'cf-email', 'cf-subject', 'cf-message'].forEach(function (id) {
+            var el = document.getElementById(id);
+            if (el) el.value = '';
+          });
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.style.opacity = '';
+          }
+        }, 4000);
+      })
+      .catch(function (err) {
+        log('EmailJS send failed', err);
+        alert('संदेश पाठवण्यात अडचण आली. कृपया पुन्हा प्रयत्न करा किंवा फोनवर संपर्क करा.');
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.style.opacity = '';
+        }
       });
-    }, 4000);
   }
 
   /* ═════════════════════════════════════════════
