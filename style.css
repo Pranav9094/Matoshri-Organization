@@ -230,7 +230,6 @@ html {
   display: flex;
   gap: 18px;
   transition: all 0.3s ease;
-
 }
 
 .achievement-card:hover {
@@ -293,24 +292,25 @@ html {
   margin-bottom: 12px;
 }
 
-.achievement-img-thumb{
-    width:100%;
-    height:140px;      /* Pehle 120 tha, isko 140 ya 150 rakh sakte ho */
-    overflow:hidden;
-    border-radius:8px;
-    border:1px solid #c2c6d2;
-    background:#fff;
+.achievement-img-thumb {
+  width: 100%;
+  height: 280px;
+  overflow: hidden;
+  border-radius: 8px;
+  border: 1px solid #c2c6d2;
+  background: #fff;
 }
 
-.achievement-img-thumb img{
-    width:100%;
-    height:100%;
-    object-fit:cover;
-    object-position:center;
+.achievement-img-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transition: transform 0.4s ease;
 }
 
 .achievement-card:hover .achievement-img-thumb img {
-  transform: scale(1.02);
+  transform: scale(1.05);
 }
 /* ═══ SECTION 4 — SCHOOL ═══ */
 
@@ -1195,7 +1195,7 @@ html {
 
 .doc-preview {
   width: 100%;
-  height: 200px;
+  height: 280px;
   background: #f7f9fc;
   overflow: hidden;
   display: flex;
@@ -1208,7 +1208,12 @@ html {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: top;
+  object-position: center;
+  transition: transform 0.4s ease;
+}
+
+.doc-card:hover .doc-preview img {
+  transform: scale(1.05);
 }
 
 .doc-placeholder {
@@ -1267,7 +1272,6 @@ html {
   color: #7A6E68;
   line-height: 1.6;
 }
-
 /* ═══ CONTACT SECTION ═══ */
 
 .contact-info-row {
