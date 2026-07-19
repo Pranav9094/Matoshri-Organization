@@ -376,17 +376,10 @@
     }
   });
 /* ═════════════════════════════════════════════
-     CONTACT FORM — EmailJS Integration
+     CONTACT FORM — Formspree Integration
      ═════════════════════════════════════════════ */
 
-  var EMAILJS_SERVICE_ID  = 'service_zeodimh';
-  var EMAILJS_TEMPLATE_ID = 'template_6lqdil7';
-  var EMAILJS_PUBLIC_KEY   = 'LpS1gulO8JKKyErMB';
-
-  /* Initialize EmailJS once, if the library loaded successfully */
-  if (typeof emailjs !== 'undefined') {
-    emailjs.init(EMAILJS_PUBLIC_KEY);
-  }
+  var FORMSPREE_ENDPOINT = 'https://formspree.io/f/mrenqrow';
 
   function submitContactForm() {
     var name    = document.getElementById('cf-name').value.trim();
@@ -413,46 +406,47 @@
       return;
     }
 
-    if (typeof emailjs === 'undefined') {
-      log('EmailJS library not loaded');
-      alert('संदेश पाठवण्यात अडचण आली. कृपया थोड्या वेळाने पुन्हा प्रयत्न करा.');
-      return;
-    }
-
     var submitBtn = document.querySelector('.contact-submit-btn');
     if (submitBtn) {
       submitBtn.disabled = true;
       submitBtn.style.opacity = '0.6';
     }
 
-    var templateParams = {
-      name:    name,
-      phone:   phone,
-      email:   email || 'दिलेला नाही',
-      subject: subject || 'सामान्य चौकशी',
-      message: message
-    };
+    var formData = new FormData();
+    formData.append('name', name);
+    formData.append('phone', phone);
+    formData.append('email', email || 'दिलेला नाही');
+    formData.append('subject', subject || 'सामान्य चौकशी');
+    formData.append('message', message);
 
-    emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams)
-      .then(function () {
-        document.getElementById('contact-form').classList.add('hidden');
-        document.getElementById('contact-success').classList.remove('hidden');
+    fetch(FORMSPREE_ENDPOINT, {
+      method: 'POST',
+      body: formData,
+      headers: { 'Accept': 'application/json' }
+    })
+      .then(function (response) {
+        if (response.ok) {
+          document.getElementById('contact-form').classList.add('hidden');
+          document.getElementById('contact-success').classList.remove('hidden');
 
-        setTimeout(function () {
-          document.getElementById('contact-form').classList.remove('hidden');
-          document.getElementById('contact-success').classList.add('hidden');
-          ['cf-name', 'cf-phone', 'cf-email', 'cf-subject', 'cf-message'].forEach(function (id) {
-            var el = document.getElementById(id);
-            if (el) el.value = '';
-          });
-          if (submitBtn) {
-            submitBtn.disabled = false;
-            submitBtn.style.opacity = '';
-          }
-        }, 4000);
+          setTimeout(function () {
+            document.getElementById('contact-form').classList.remove('hidden');
+            document.getElementById('contact-success').classList.add('hidden');
+            ['cf-name', 'cf-phone', 'cf-email', 'cf-subject', 'cf-message'].forEach(function (id) {
+              var el = document.getElementById(id);
+              if (el) el.value = '';
+            });
+            if (submitBtn) {
+              submitBtn.disabled = false;
+              submitBtn.style.opacity = '';
+            }
+          }, 4000);
+        } else {
+          throw new Error('Formspree returned status ' + response.status);
+        }
       })
       .catch(function (err) {
-        log('EmailJS send failed', err);
+        log('Formspree submission failed', err);
         alert('संदेश पाठवण्यात अडचण आली. कृपया पुन्हा प्रयत्न करा किंवा फोनवर संपर्क करा.');
         if (submitBtn) {
           submitBtn.disabled = false;

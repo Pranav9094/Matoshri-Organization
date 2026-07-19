@@ -7,11 +7,11 @@
   <!-- Content Security Policy — restricts which origins can load scripts, styles, images, and connect to APIs -->
   <meta http-equiv="Content-Security-Policy" content="
   default-src 'self';
-  script-src  'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdn.jsdelivr.net;
+  script-src  'self' 'unsafe-inline' https://cdn.tailwindcss.com;
   style-src   'self' 'unsafe-inline' https://fonts.googleapis.com;
   font-src    'self' https://fonts.gstatic.com;
   img-src     'self' data: https://drive.google.com https://lh3.googleusercontent.com;
-  connect-src 'self' https://www.googleapis.com https://api.emailjs.com;
+  connect-src 'self' https://www.googleapis.com https://formspree.io;
 ">
   <title>मातोश्री बहुउद्देशीय सेवाभावी संस्था</title>
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
@@ -2591,7 +2591,7 @@
   <!-- config.js is gitignored and contains the real API key.
        It must be created locally from config.example.js.
        It MUST be loaded before main.js. -->
-  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
   <script src="./config.js"></script>
   <script src="./main.js"></script>
 
