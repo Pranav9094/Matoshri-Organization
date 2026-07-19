@@ -2062,8 +2062,42 @@
           </button>
         </div>
 
+
+
       </div>
+
+      <button onclick="openWomenGallery()"
+        class="inline-flex items-center gap-2 bg-primary text-white font-label-md px-8 py-3 rounded-lg hover:bg-accent-gold hover:text-primary transition-all shadow-md">
+        <span class="material-symbols-outlined text-base">photo_library</span>
+        View Full Gallery
+      </button>
     </section>
+    <!-- Women/Youth Gallery Modal -->
+    <div id="women-gallery-modal" class="gallery-modal hidden">
+      <div class="gallery-modal-overlay" onclick="closeWomenGallery()"></div>
+      <div class="gallery-modal-box">
+        <div class="gallery-modal-header">
+          <h3 class="font-headline-md text-headline-md text-primary">Youth, Sports & Women Empowerment Gallery</h3>
+          <button onclick="closeWomenGallery()" class="gallery-close-btn" aria-label="Close">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+        <div class="gallery-grid" id="women-gallery-grid"></div>
+      </div>
+    </div>
+    <div id="women-lightbox" class="lightbox hidden">
+      <div class="lightbox-overlay" onclick="closeLightbox('women')"></div>
+      <button class="lightbox-prev" onclick="womenLightboxNav(-1)"><span
+          class="material-symbols-outlined">chevron_left</span></button>
+      <div class="lightbox-content">
+        <img id="women-lightbox-img" src="" alt="" class="lightbox-img" />
+        <div id="women-lightbox-caption" class="lightbox-caption"></div>
+      </div>
+      <button class="lightbox-next" onclick="womenLightboxNav(1)"><span
+          class="material-symbols-outlined">chevron_right</span></button>
+      <button class="lightbox-close" onclick="closeLightbox('women')"><span
+          class="material-symbols-outlined">close</span></button>
+    </div>
     <!-- ═══ END SECTION 9 ═══ -->
 
 
