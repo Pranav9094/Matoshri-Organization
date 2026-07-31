@@ -1,25 +1,25 @@
-/* ═══════════════════════════════════════════════
-   MATOSHREE ORGANISATION — Main JavaScript
+/* ===================================================
+   MATOSHREE ORGANISATION -- Main JavaScript
    matoshriseva.org
-   ═══════════════════════════════════════════════
+   ===================================================
    SECURITY NOTES:
-   • Wrapped in IIFE — no globals leaked to window
+   * Wrapped in IIFE -- no globals leaked to window
      except the explicit legacy alias functions
      required for HTML onclick= attributes.
-   • API Key read from window.CONFIG (config.js).
-   • 'use strict' mode enabled.
-   • No innerHTML used with any API/user-supplied data.
-   • All dynamic text set via textContent / DOM API.
-   ═══════════════════════════════════════════════ */
+   * API Key read from window.CONFIG (config.js).
+   * 'use strict' mode enabled.
+   * No innerHTML used with any API/user-supplied data.
+   * All dynamic text set via textContent / DOM API.
+   =================================================== */
 
 (function () {
   'use strict';
 
-  /* ─────────────────────────────────────────────
+  /* ---------------------------------------------
      INTERNAL LOGGER
      Calls console.error only when DEBUG: true.
      Prevents leaking internal structure in production.
-     ───────────────────────────────────────────── */
+     --------------------------------------------- */
   function log(msg, data) {
     if (window.CONFIG && window.CONFIG.DEBUG) {
       if (data !== undefined) {
@@ -30,10 +30,10 @@
     }
   }
 
-  /* ─────────────────────────────────────────────
+  /* ---------------------------------------------
      CONFIG GUARD
      Fail loudly (but safely) if config.js is missing.
-     ───────────────────────────────────────────── */
+     --------------------------------------------- */
   if (!window.CONFIG || !window.CONFIG.GOOGLE_API_KEY) {
     var missing = document.createElement('div');
     missing.textContent = 'Configuration error: config.js is missing. See config.example.js for setup instructions.';
@@ -44,7 +44,7 @@
 
   var API_KEY = window.CONFIG.GOOGLE_API_KEY;
 
-  /* ─────────────────────────────────────────────
+  /* ---------------------------------------------
      SECTION 1 — GALLERY CONFIGURATION
      ─────────────────────────────────────────────
      Mapped to actual Google Drive folders:
@@ -56,7 +56,7 @@
        deaddiction  → De-Addiction Gallery
        women        → Women Empowerment Gallery
        media        → Awareness Gallery
-     ───────────────────────────────────────────── */
+     --------------------------------------------- */
 
   var GALLERIES = Object.freeze({
     achievements: { folderId: '1xe2kq4U-TODZ9t89S_eYMXaAHE_aIAb6', photos: [], index: 0 },
@@ -76,9 +76,9 @@
     return GALLERY_KEYS.indexOf(key) !== -1;
   }
 
-  /* ─────────────────────────────────────────────
+  /* ---------------------------------------------
      SECTION 2 — HAMBURGER MENU
-     ───────────────────────────────────────────── */
+     --------------------------------------------- */
 
   var hamburger  = document.getElementById('hamburger');
   var mobileMenu = document.getElementById('mobile-menu');
@@ -117,9 +117,9 @@
     });
   }
 
-  /* ─────────────────────────────────────────────
+  /* ---------------------------------------------
      SECTION 3 — BACK TO TOP
-     ───────────────────────────────────────────── */
+     --------------------------------------------- */
 
   var backToTop = document.getElementById('back-to-top');
 
@@ -133,9 +133,9 @@
     });
   }
 
-  /* ─────────────────────────────────────────────
+  /* ---------------------------------------------
      SECTION 4 — SCROLL REVEAL
-     ───────────────────────────────────────────── */
+     --------------------------------------------- */
 
   var revealObserver = new IntersectionObserver(function (entries) {
     entries.forEach(function (entry) {
@@ -150,7 +150,7 @@
     revealObserver.observe(el);
   });
 
-  /* ═════════════════════════════════════════════
+  /* =============================================
      GALLERY ENGINE
      ═════════════════════════════════════════════ */
 
@@ -455,7 +455,7 @@
       });
   }
 
-  /* ═════════════════════════════════════════════
+  /* =============================================
      LEGACY WINDOW ALIASES
      ─────────────────────────────────────────────
      These are the ONLY names intentionally exposed
